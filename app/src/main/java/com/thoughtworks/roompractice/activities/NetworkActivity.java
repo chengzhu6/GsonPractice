@@ -2,13 +2,13 @@ package com.thoughtworks.roompractice.activities;
 
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.thoughtworks.roompractice.R;
-import com.thoughtworks.roompractice.common.MyApplication;
 import com.thoughtworks.roompractice.common.RxManager;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
@@ -46,47 +46,58 @@ public class NetworkActivity extends AppCompatActivity {
     }
 
     private void request() {
-        Observable.create((ObservableOnSubscribe<String>) emitter -> {
-            OkHttpClient okHttpClient = new OkHttpClient();
-            Request.Builder requestBuilder = new Request.Builder();
-            Request request = requestBuilder.url(URL).build();
-            try (Response response = okHttpClient.newCall(request).execute()) {
-                if (response.isSuccessful()) {
-                    final ResponseBody body = response.body();
-                    if (body != null) {
-                        emitter.onNext(body.string());
-                        emitter.onComplete();
-                    }
-                } else {
-                    emitter.onError(new Exception("Request Failure"));
-                }
-            } catch (IOException e) {
-                emitter.onError(e);
-            }
-        }).subscribeOn(Schedulers.io())
+        Observable.create(createObservable())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<String>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        requestButton.setClickable(false);
-                        rxManager.add(d);
-                    }
+                .subscribe(createObserve());
+    }
 
-                    @Override
-                    public void onNext(String s) {
-                        showToast(s);
-                    }
+    @NotNull
+    private Observer<String> createObserve() {
+        return new Observer<String>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                requestButton.setClickable(false);
+                rxManager.add(d);
+            }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        showToast(e.getMessage());
-                    }
+            @Override
+            public void onNext(String s) {
+                showToast(s);
+            }
 
-                    @Override
-                    public void onComplete() {
-                        requestButton.setClickable(true);
+            @Override
+            public void onError(Throwable e) {
+                showToast(e.getMessage());
+            }
+
+            @Override
+            public void onComplete() {
+                requestButton.setClickable(true);
+            }
+        };
+    }
+
+    @NotNull
+    private ObservableOnSubscribe<String> createObservable() {
+        return emitter -> {
+                OkHttpClient okHttpClient = new OkHttpClient();
+                Request.Builder requestBuilder = new Request.Builder();
+                Request request = requestBuilder.url(URL).build();
+                try (Response response = okHttpClient.newCall(request).execute()) {
+                    if (response.isSuccessful()) {
+                        ResponseBody body = response.body();
+                        if (body != null) {
+                            emitter.onNext(body.string());
+                            emitter.onComplete();
+                        }
+                    } else {
+                        emitter.onError(new Exception("Request Failure"));
                     }
-                });
+                } catch (IOException e) {
+                    emitter.onError(e);
+                }
+            };
     }
 
 }
