@@ -5,12 +5,16 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.gson.Gson;
 import com.thoughtworks.roompractice.R;
 import com.thoughtworks.roompractice.common.RxManager;
+import com.thoughtworks.roompractice.constracts.Person;
+import com.thoughtworks.roompractice.constracts.PersonWrapper;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
@@ -47,14 +51,18 @@ public class NetworkActivity extends AppCompatActivity {
 
     private void request() {
         Observable.create(createObservable())
+                .map(s -> {
+                    final Gson gson = new Gson();
+                    return gson.fromJson(s, PersonWrapper.class);
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(createObserve());
     }
 
     @NotNull
-    private Observer<String> createObserve() {
-        return new Observer<String>() {
+    private Observer<PersonWrapper> createObserve() {
+        return new Observer<PersonWrapper>() {
             @Override
             public void onSubscribe(Disposable d) {
                 requestButton.setClickable(false);
@@ -62,8 +70,14 @@ public class NetworkActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onNext(String s) {
-                showToast(s);
+            public void onNext(PersonWrapper personWrapper) {
+                List<Person> data = personWrapper.getData();
+                if (data != null && !data.isEmpty()) {
+                    Person person = data.get(0);
+                    if (person != null) {
+                        showToast(person.getName());
+                    }
+                }
             }
 
             @Override

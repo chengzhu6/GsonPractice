@@ -1,1 +1,1 @@
-![alt_text](screenshot-2020-07-26_19.00.47.842.png)
+![alt_text](screenshot-2020-07-26_19.59.37.361.png)
