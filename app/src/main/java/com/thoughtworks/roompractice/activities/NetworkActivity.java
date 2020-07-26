@@ -23,6 +23,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static com.thoughtworks.roompractice.common.ToastUtil.showToast;
+
 public class NetworkActivity extends AppCompatActivity {
     private static final String URL = "https://twc-android-bootcamp.github.io/fake-data/data/default.json";
     private Button requestButton;
@@ -87,7 +89,4 @@ public class NetworkActivity extends AppCompatActivity {
                 });
     }
 
-    private void showToast(String message) {
-        Toast.makeText(MyApplication.getMyContext(), message, Toast.LENGTH_SHORT).show();
-    }
 }

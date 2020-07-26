@@ -19,6 +19,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.thoughtworks.roompractice.common.ToastUtil.showToast;
+
 public class SubmitActivity extends AppCompatActivity {
 
     private static final List<Integer> GENDERS = Arrays.asList(0, 1);
@@ -41,7 +43,7 @@ public class SubmitActivity extends AppCompatActivity {
             if (checkInput(person)) {
                 submitData(person);
             } else {
-                Toast.makeText(MyApplication.getMyContext(), "Input Invalid", Toast.LENGTH_SHORT).show();
+                showToast("Input Invalid");
             }
         });
     }
@@ -55,7 +57,7 @@ public class SubmitActivity extends AppCompatActivity {
                 })
                 .doFinally(() -> submitButton.setClickable(true))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(aLong -> Toast.makeText(MyApplication.getMyContext(), "Insert Success", Toast.LENGTH_SHORT).show());
+                .subscribe(aLong -> showToast("Insert Success"));
         rxManager.add(disposable);
     }
 
